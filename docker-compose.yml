@@ -1,0 +1,70 @@
+version: '3.5'
+
+services:
+  codenip-php81-symfony54:
+    container_name: codenip-php81-symfony54
+    build:
+      context: ./docker
+      args:
+        UID: $U_ID
+    volumes:
+      - ./:/appdata/www
+    ###> XDEBUG 3 ###
+    # Use your client IP here
+    # Linux: run "ip a | grep docker0"
+    # Windows (with WSL2) and Mac: host.docker.internal
+    environment:
+      XDEBUG_CLIENT_HOST: 172.17.0.1
+      XDEBUG_CLIENT_PORT: 9003
+      PHP_IDE_CONFIG: serverName=codenip-php81-symfony54
+    ports:
+      - '1000:8000'
+    networks:
+      - codenip-php81-symfony54-network
+    depends_on:
+      - codenip-php81-symfony54-postgres
+
+  codenip-php81-symfony54-postgres:
+    container_name: codenip-php81-symfony54-postgres
+    image: postgres:14-alpine
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: passwd
+      POSTGRES_DB: postgres_symfony
+    volumes:
+      - codenip-php81-symfony54-pgsql-data:/var/lib/postgresql/data
+    networks:
+      - codenip-php81-symfony54-network
+
+  codenip-php81-symfony54-mysql:
+    container_name: codenip-php81-symfony54-mysql
+    image: mysql:8.0.26
+    ports:
+      - '3336:3306'
+    environment:
+      MYSQL_DATABASE: mysql_symfony
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - codenip-php81-symfony54-mysql-data:/var/lib/mysql
+    networks:
+      - codenip-php81-symfony54-network
+    command: [ 'mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci' ]
+
+  codenip-php81-symfony54-rabbit:
+    container_name: codenip-php81-symfony54-rabbitmq
+    image: rabbitmq:3-management-alpine
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    networks:
+      - codenip-php81-symfony54-network
+
+networks:
+  codenip-php81-symfony54-network:
+
+volumes:
+  codenip-php81-symfony54-pgsql-data:
+  codenip-php81-symfony54-mysql-data:
+

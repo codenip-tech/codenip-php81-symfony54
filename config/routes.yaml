@@ -1,0 +1,8 @@
+#index:
+#    path: /
+#    controller: App\Controller\DefaultController::index
+
+messenger:
+  path: /messenger
+  controller: App\Controller\MessengerAction
+  methods: [GET]
